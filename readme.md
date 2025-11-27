@@ -3,6 +3,30 @@
 Bonsai_term is a library that lets you write Terminal UIs (TUIs) using
 OCaml. It uses the same programming model as the `bonsai_web` library.
 
+`bonsai_term` is released across 4 repositories:
+
+- [bonsai_term](https://github.com/janestreet/bonsai_term): The "core" bonsai term library.
+- [bonsai_term_examples](https://github.com/janestreet/bonsai_term_examples): Some bonsai_term examples. 
+- [bonsai_term_components](https://github.com/janestreet/bonsai_term_components): Some re-usable bonsai term components.
+- [bonsai_term_test](https://github.com/janestreet/bonsai_term_test): For writing bonsai term tests.
+
+
+## Demos
+
+Here are some of our demos. The source code for these (and others) is located in our [examples repo](https://github.com/janestreet/bonsai_term_examples/tree/with-extensions/hello_world).
+
+![Hello World](./demos/hello-world.gif)
+
+![Textbox demo](./demos/text-box.gif)
+
+![Clock](./demos/clock.gif)
+
+![Weighted Tree](./demos/weighted-tree.gif)
+
+![Catpuccin](./demos/catpuccin.gif)
+
+![Bar Chart](./demos/bar-chart.gif)
+
 
 ## Getting started
 
