@@ -26,12 +26,18 @@ let dead t =
 
 let release t =
   let%tydi { term; _ } = t in
+  let%bind () = Notty_async.Term.restore_title term in
   Notty_async.Term.release term
 ;;
 
 let cursor t cursor =
   let%tydi { term; _ } = t in
   Notty_async.Term.cursor term cursor
+;;
+
+let set_title t title =
+  let%tydi { term; _ } = t in
+  Notty_async.Term.set_title term title
 ;;
 
 let dimensions t =
@@ -73,6 +79,7 @@ let create ?dispose ?nosig ?mouse ?bpaste ?reader ?writer ?for_mocking ~time_sou
   let%bind term =
     Notty_async.Term.create ?mouse ?dispose ?nosig ?bpaste ?reader ?writer ?for_mocking ()
   in
+  let%bind () = Notty_async.Term.save_title term in
   let pending_events = Queue.create () in
   let bvar = Bvar.create () in
   let notty_pipe = Notty_async.Term.events term in

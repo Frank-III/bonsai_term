@@ -54,6 +54,7 @@ let create
       let%arr.Bonsai view and handler in
       ~view, ~handler)
     |> Cursor.register term
+    |> Title.register term
     |> Bonsai_driver.create
          ~optimize
          ~time_source:clock

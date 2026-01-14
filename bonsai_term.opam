@@ -16,16 +16,16 @@ depends: [
   "core"
   "core_unix"
   "notty_async"
-  "parallel"
   "ppx_jane"
+  "unboxed_datatypes"
   "uopt"
   "virtual_dom"
-  "dune"            {>= "3.17.0"}
-  "notty-community" {= "0.2.4+ox"}
+  "dune"              {>= "3.17.0"}
+  "notty-community"   {= "0.2.4+ox"}
 ]
 available: arch != "arm32" & arch != "x86_32"
 synopsis: "A library for building dynamic terminal apps, using bonsai"
 description: "
-Bonsai_term is a library for building reusable TUI componetns and apps inside an
-    Incremental-style UI framework such as Bonsai_web, Incr_dom or React.
+Bonsai_term is a library for building reusable TUI components and apps inside an
+    Incremental-style UI framework similar to Bonsai_web, Incr_dom or React.
 "

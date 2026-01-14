@@ -37,3 +37,4 @@ type cursor :=
   ]
 
 val cursor : t -> (int * int * cursor) option -> unit Deferred.t
+val set_title : t -> string -> unit Deferred.t

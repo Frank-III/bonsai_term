@@ -130,6 +130,19 @@ module Position = Position
 
 module Bonsai = Bonsai
 module Cursor = Cursor
+module Title = Title
+
+(** [stitch] is a tiny utility function that will "tuple up" a view and a handler bonsais
+    into a single bonsai node. This is useful if you want to quickly turn some of these
+    into a Bonsai.t for use inside of a [match%sub] or other Bonsai functions. *)
+val stitch
+  :  (view:View.t Bonsai.t * handler:(Event.t -> unit Effect.t) Bonsai.t)
+  -> (view:View.t * handler:(Event.t -> unit Effect.t)) Bonsai.t
+
+(** [unstitch] is the inverse of [stitch]. *)
+val unstitch
+  :  (view:View.t * handler:(Event.t -> unit Effect.t)) Bonsai.t
+  -> view:View.t Bonsai.t * handler:(Event.t -> unit Effect.t) Bonsai.t
 
 module Private : sig
   module Driver = Driver

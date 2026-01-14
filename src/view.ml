@@ -1,42 +1,44 @@
 open! Core
+open Unboxed_datatypes
 
 module Single_memo = struct
   type ('a, 'b) t =
     | Constant of 'b
     | Varying of
-        { mutable prev : ('a, 'b) Pair_or_null.t
+        { mutable prev : (#('a * 'b) Option_u.t[@kind value_or_null & value_or_null])
         ; gen : 'a -> 'b
         ; equal : 'a -> 'a -> bool
         }
 
-  let memo ~equal gen = Varying { prev = Pair_or_null.none (); gen; equal }
+  let memo ~equal gen =
+    Varying
+      { prev = (Option_u.none [@kind value_or_null & value_or_null]) (); gen; equal }
+  ;;
+
   let constant a = Constant a
 
-  let get t input =
+  let get (type a b) t input =
     match t with
     | Constant t -> t
     | Varying t ->
       let compute_and_store () =
         let output = t.gen input in
-        t.prev <- Pair_or_null.some input output;
+        t.prev <- (Option_u.some [@kind value_or_null & value_or_null]) #(input, output);
         output
       in
-      (match%optional_u.Pair_or_null t.prev with
-       | Some prev ->
-         let #(prev_input, prev_output) = prev in
+      (match (t.prev : (#(a * b) Option_u.t[@kind value_or_null & value_or_null])) with
+       | T #(Some, #(prev_input, prev_output)) ->
          if t.equal prev_input input then prev_output else compute_and_store ()
-       | None -> compute_and_store ())
+       | T #(None, _) -> compute_and_store ())
   ;;
 
-  let prev_or_compute t input =
+  let prev_or_compute (type a b) t input =
     match t with
     | Constant t -> t
     | Varying { prev; _ } ->
-      (match%optional_u.Pair_or_null prev with
-       | Some prev ->
-         let #(_, prev_output) = prev in
-         prev_output
-       | None -> get t input)
+      (match (prev : (#(a * b) Option_u.t[@kind value_or_null & value_or_null])) with
+       | T #(Some, #(_, prev_output)) -> prev_output
+       | T #(None, _) -> get t input)
   ;;
 end
 
