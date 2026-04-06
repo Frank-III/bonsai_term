@@ -55,6 +55,8 @@ let create
       ~view, ~handler)
     |> Cursor.register term
     |> Title.register term
+    |> Mouse_reporting.register term
+    |> Write_to_tty.register term
     |> Bonsai_driver.create
          ~optimize
          ~time_source:clock

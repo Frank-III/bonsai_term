@@ -80,24 +80,43 @@ let char_code_to_safe_string_mapping =
        | 30
        | 31 -> Uopt.some [%string "\\0%{i#Int}"]
        | 127 -> Uopt.some [%string "\\127"]
+       | _ when i >= 128 && i < 160 -> Uopt.some [%string "\\%{i#Int}"]
        | _ -> Uopt.none))
 ;;
 
 let replace_invalid_characters string =
-  String.concat_map string ~f:(fun char ->
-    let c = Char.to_int char in
-    let (lazy mapping) = char_code_to_safe_string_mapping in
+  (* [Notty.I.string] rejects Unicode control characters (category [Cc]), which includes
+     not only ASCII controls (U+0000..U+001F and U+007F), but also the C1 control range
+     U+0080..U+009F.
+
+     Note that U+0080..U+009F are *not* single bytes in UTF-8; e.g. U+0080 encodes as
+     [0xC2 0x80]. So we must sanitize at the Unicode codepoint level rather than doing a
+     byte-based scan.
+  *)
+  let buffer = Buffer.create (String.length string) in
+  let (lazy mapping) = char_code_to_safe_string_mapping in
+  let string = String.Utf8.of_string_unchecked string in
+  String.Utf8.to_sequence string
+  |> Sequence.iter ~f:(fun uchar ->
+    let scalar = Uchar.to_scalar uchar in
     match%optional.Uopt
-      if c >= 0 || c < Iarray.length mapping then Iarray.get mapping c else Uopt.none
+      if scalar >= 0 && scalar < Iarray.length mapping
+      then Iarray.get mapping scalar
+      else Uopt.none
     with
-    | Some string -> string
-    | None -> Char.to_string char)
+    | Some replacement -> Buffer.add_string buffer replacement
+    | None -> Buffer.add_string buffer (Uchar.Utf8.to_string uchar));
+  Buffer.contents buffer
 ;;
 
 let has_characters_that_need_to_be_replaced string =
-  String.exists string ~f:(fun c ->
-    let c = Char.to_int c in
-    (c >= 0 && c < 32) || c = 127)
+  let (lazy mapping) = char_code_to_safe_string_mapping in
+  let string = String.Utf8.of_string_unchecked string in
+  String.Utf8.exists string ~f:(fun uchar ->
+    let scalar = Uchar.to_scalar uchar in
+    scalar >= 0
+    && scalar < Iarray.length mapping
+    && Uopt.is_some (Iarray.get mapping scalar))
 ;;
 
 let text ?(attrs = []) string =

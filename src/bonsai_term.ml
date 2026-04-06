@@ -6,6 +6,7 @@ module Effect = Effect
 module Cursor = Cursor
 module Title = Title
 module Captured_or_ignored = Captured_or_ignored
+module Mouse_reporting = Mouse_reporting
 include Geom
 
 let start_with_exit = Loop.start_with_exit
@@ -31,4 +32,8 @@ module Private = struct
     let make_app_exit_on_ctrlc = Loop.For_testing.make_app_exit_on_ctrlc
     let with_driver = Loop.For_testing.with_driver
   end
+end
+
+module Expert = struct
+  module Write_to_tty = Write_to_tty
 end

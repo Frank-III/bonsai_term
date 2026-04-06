@@ -9,8 +9,11 @@ val none : t
     attributes for things like text/background color. *)
 val text : ?attrs:Attr.t list -> string -> t
 
-(** Checks to see if a string contains valid utf8. If this function returns false, then
-    calls to [View.text] may cause your program to crash. *)
+(** Checks to see if a string is accepted by Notty as UTF-8 text (i.e. it is valid UTF-8
+    and contains no Unicode control characters).
+
+    Note: [View.text] will sanitize/escape problematic input, so a [false] result here is
+    mainly useful for diagnostics. *)
 val is_valid_utf8 : string -> bool
 
 (** Build a view with the given sexp as the text content. *)

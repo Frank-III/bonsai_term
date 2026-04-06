@@ -40,6 +40,11 @@ let set_title t title =
   Notty_async.Term.set_title term title
 ;;
 
+let set_mouse t enabled =
+  let%tydi { term; _ } = t in
+  Notty_async.Term.set_mouse term enabled
+;;
+
 let dimensions t =
   let width, height = size t in
   { Geom.Dimensions.width; height }
@@ -105,4 +110,10 @@ let create ?dispose ?nosig ?mouse ?bpaste ?reader ?writer ?for_mocking ~time_sou
     { term; bvar :> (unit, read) Bvar.t; pending_events; pipe_is_closed; time_source }
   in
   Deferred.return t
+;;
+
+let write_string_to_tty t string =
+  let writer = Notty_async.Term.writer t.term in
+  Writer.write writer string;
+  Writer.flushed writer
 ;;

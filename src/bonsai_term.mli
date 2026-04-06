@@ -5,7 +5,7 @@ open Async
     This is kind of like [bonsai_web], but for terminals.
 
     To learn how to use this library, you can read this MLI and/or look at some examples
-    under the ./examples directory.
+    under [lib/bonsai_term_examples].
 
     To learn how to use bonsai, you can read our docs at `lib/bonsai/docs`, do the bonsai
     teach in. *)
@@ -131,6 +131,7 @@ module Position = Position
 module Bonsai = Bonsai
 module Cursor = Cursor
 module Title = Title
+module Mouse_reporting = Mouse_reporting
 
 (** [stitch] is a tiny utility function that will "tuple up" a view and a handler bonsais
     into a single bonsai node. This is useful if you want to quickly turn some of these
@@ -179,3 +180,7 @@ module Private : sig
 end
 
 module Captured_or_ignored = Captured_or_ignored
+
+module Expert : sig
+  module Write_to_tty = Write_to_tty
+end
