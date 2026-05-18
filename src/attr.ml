@@ -13,6 +13,11 @@ let empty = many []
 module Color = struct
   type t = Notty.A.color
 
+  let sexp_of_t t =
+    Notty.A.Private.color_to_repr t
+    |> [%sexp_of: [ `Default | `Palette_index of int | `Rgb_888 of int * int * int ]]
+  ;;
+
   let equal =
     (* Notty.A.color is an int under the hood, so phys_equal is fast and correct *)
     phys_equal
@@ -23,6 +28,46 @@ module Color = struct
     let g = Int.clamp_exn g ~min:0 ~max:255 in
     let b = Int.clamp_exn b ~min:0 ~max:255 in
     Notty.A.rgb_888 ~r ~g ~b
+  ;;
+
+  let xterm_256 index =
+    if index < 0 || index > 255
+    then invalid_arg [%string "Attr.Color.xterm_256: index out of range: %{index#Int}"];
+    if index < 8
+    then (
+      match index with
+      | 0 -> Notty.A.black
+      | 1 -> Notty.A.red
+      | 2 -> Notty.A.green
+      | 3 -> Notty.A.yellow
+      | 4 -> Notty.A.blue
+      | 5 -> Notty.A.magenta
+      | 6 -> Notty.A.cyan
+      | 7 -> Notty.A.white
+      | _ -> assert false)
+    else if index < 16
+    then (
+      match index with
+      | 8 -> Notty.A.lightblack
+      | 9 -> Notty.A.lightred
+      | 10 -> Notty.A.lightgreen
+      | 11 -> Notty.A.lightyellow
+      | 12 -> Notty.A.lightblue
+      | 13 -> Notty.A.lightmagenta
+      | 14 -> Notty.A.lightcyan
+      | 15 -> Notty.A.lightwhite
+      | _ -> assert false)
+    else if index >= 232
+    then (
+      let level = index - 232 in
+      Notty.A.gray level)
+    else (
+      let cube_range = index - 16 in
+      let r = cube_range / 36 in
+      let gb_range = cube_range - (r * 36) in
+      let g = gb_range / 6 in
+      let b = gb_range - (g * 6) in
+      Notty.A.rgb ~r ~g ~b)
   ;;
 
   module Expert = struct

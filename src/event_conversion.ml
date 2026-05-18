@@ -10,10 +10,11 @@ let notty_mouse_press_to_mouse_kind : Notty.Unescape.button -> Event.mouse_kind 
 ;;
 
 let notty_mouse_kind_to_mouse_kind
-  : [ `Press of Notty.Unescape.button | `Drag | `Release ] -> Event.mouse_kind
+  : [ `Press of Notty.Unescape.button | `Drag | `Hover | `Release ] -> Event.mouse_kind
   = function
   | `Press button -> notty_mouse_press_to_mouse_kind button
   | `Drag -> Drag
+  | `Hover -> Hover
   | `Release -> Release
 ;;
 
@@ -83,7 +84,7 @@ let notty_root_event_to_root_event
      | `Paste of Notty.Unescape.paste
      | `Resize of int * int
      ]
-  -> Event.Root_event.t
+  -> 'incoming Event.Root_event.t
   = function
   | `Resize (width, height) -> Resize { Geom.Dimensions.width; height }
   | (`Paste _ | `Key _ | `Mouse _) as event ->

@@ -1,16 +1,20 @@
 open! Core
 
-(** Dynamically enable/disable terminal mouse reporting.
+(** Dynamically control terminal mouse reporting.
 
-    When mouse reporting is enabled, the terminal will send mouse events on stdin.
-    Disabling mouse reporting is important for allowing terminal-native text selection.
+    [All_mouse_events] enables ordinary mouse events and hover/motion events with no
+    button pressed. [All_mouse_events_except_hover] enables ordinary mouse events but
+    disables hover events. [No_mouse_events] disables terminal mouse reporting, which is
+    important for allowing terminal-native text selection.
 
     This is exposed via dynamic scope, similar to {!Cursor.set_cursor_position}. *)
 
-val set_mouse_reporting : local_ Bonsai.graph -> (bool -> unit Ui_effect.t) Bonsai.t
+val set_mouse_reporting
+  :  local_ Bonsai.graph
+  -> (Mouse_reporting_config.t -> unit Ui_effect.t) Bonsai.t
 
 val register
-  :  Term.t
+  :  _ Term.t
   -> (local_ Bonsai.graph -> 'a Bonsai.t)
   -> local_ Bonsai.graph
   -> 'a Bonsai.t

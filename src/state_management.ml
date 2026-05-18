@@ -2,9 +2,9 @@ open! Core
 open Bonsai
 
 module For_dimensions = struct
-  type t =
+  type 'incoming t =
     { var : Geom.Dimensions.t Bonsai.Expert.Var.t
-    ; term : Term.t
+    ; term : 'incoming Term.t
     }
 
   let create ~term =

@@ -1,7 +1,7 @@
 open! Core
 
 module Kind = struct
-  type t =
+  type t = Types.Cursor.Kind.t =
     | Default
     | Bar
     | Bar_blinking
@@ -10,19 +10,9 @@ module Kind = struct
     | Underline
     | Underline_blinking
   [@@deriving sexp_of, equal]
-
-  let to_notty = function
-    | Default -> `Default
-    | Bar -> `Bar
-    | Bar_blinking -> `Bar_blinking
-    | Block -> `Block
-    | Block_blinking -> `Block_blinking
-    | Underline -> `Underline
-    | Underline_blinking -> `Underline_blinking
-  ;;
 end
 
-type t =
+type t = Types.Cursor.t =
   { position : Geom.Position.t
   ; kind : Kind.t
   }
@@ -47,12 +37,7 @@ let set_cursor_position = Bonsai.Dynamic_scope.lookup variable
 let register term inside =
   let value =
     Bonsai.return
-      (Ui_effect_of_deferred.of_deferred_fun (fun cursor ->
-         Term.cursor
-           term
-           (Option.map cursor ~f:(fun { position = { x; y }; kind } ->
-              let kind = Kind.to_notty kind in
-              x, y, kind))))
+      (Ui_effect_of_deferred.of_deferred_fun (fun cursor -> Term.cursor term cursor))
   in
   Bonsai.Dynamic_scope.set variable value ~inside
 ;;

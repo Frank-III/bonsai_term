@@ -1,6 +1,6 @@
 open! Core
 
-let variable : (bool -> unit Ui_effect.t) Bonsai.Dynamic_scope.t =
+let variable : (Mouse_reporting_config.t -> unit Ui_effect.t) Bonsai.Dynamic_scope.t =
   Bonsai.Dynamic_scope.create
     ~name:"set_mouse_reporting"
     ~fallback:(fun enabled ->
@@ -9,7 +9,7 @@ let variable : (bool -> unit Ui_effect.t) Bonsai.Dynamic_scope.t =
           [%message
             "Bug in bonsai_term! Mouse reporting handler not registered! \
              [set_mouse_reporting] won't occur"
-              (enabled : bool)]
+              (enabled : Mouse_reporting_config.t)]
       in
       Ui_effect.Ignore)
     ()
@@ -30,7 +30,9 @@ module For_mock_tests = struct
     let value =
       Bonsai.return (fun enabled ->
         Ui_effect.of_sync_fun
-          (fun () -> print_s [%message "[set_mouse_reporting]" (enabled : bool)])
+          (fun () ->
+            print_s
+              [%message "[set_mouse_reporting]" (enabled : Mouse_reporting_config.t)])
           ())
     in
     Bonsai.Dynamic_scope.set variable value ~inside

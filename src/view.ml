@@ -55,12 +55,12 @@ let char_code_to_safe_string_mapping =
   lazy
     (Iarray.init 256 ~f:(fun i ->
        match i with
-       | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 -> Uopt.some [%string "\\00%{i#Int}"]
-       | 8 -> Uopt.some "\\b"
-       | 9 -> Uopt.some "\\t"
-       | 10 -> Uopt.some "\\n"
-       | 11 | 12 -> Uopt.some [%string "\\0%{i#Int}"]
-       | 13 -> Uopt.some "\\r"
+       | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 -> This [%string "\\00%{i#Int}"]
+       | 8 -> This "\\b"
+       | 9 -> This "\\t"
+       | 10 -> This "\\n"
+       | 11 | 12 -> This [%string "\\0%{i#Int}"]
+       | 13 -> This "\\r"
        | 14
        | 15
        | 16
@@ -78,10 +78,10 @@ let char_code_to_safe_string_mapping =
        | 28
        | 29
        | 30
-       | 31 -> Uopt.some [%string "\\0%{i#Int}"]
-       | 127 -> Uopt.some [%string "\\127"]
-       | _ when i >= 128 && i < 160 -> Uopt.some [%string "\\%{i#Int}"]
-       | _ -> Uopt.none))
+       | 31 -> This [%string "\\0%{i#Int}"]
+       | 127 -> This [%string "\\127"]
+       | _ when i >= 128 && i < 160 -> This [%string "\\%{i#Int}"]
+       | _ -> Null))
 ;;
 
 let replace_invalid_characters string =
@@ -99,13 +99,13 @@ let replace_invalid_characters string =
   String.Utf8.to_sequence string
   |> Sequence.iter ~f:(fun uchar ->
     let scalar = Uchar.to_scalar uchar in
-    match%optional.Uopt
+    match
       if scalar >= 0 && scalar < Iarray.length mapping
       then Iarray.get mapping scalar
-      else Uopt.none
+      else Null
     with
-    | Some replacement -> Buffer.add_string buffer replacement
-    | None -> Buffer.add_string buffer (Uchar.Utf8.to_string uchar));
+    | This replacement -> Buffer.add_string buffer replacement
+    | Null -> Buffer.add_string buffer (Uchar.Utf8.to_string uchar));
   Buffer.contents buffer
 ;;
 
@@ -116,7 +116,7 @@ let has_characters_that_need_to_be_replaced string =
     let scalar = Uchar.to_scalar uchar in
     scalar >= 0
     && scalar < Iarray.length mapping
-    && Uopt.is_some (Iarray.get mapping scalar))
+    && Or_null.is_this (Iarray.get mapping scalar))
 ;;
 
 let text ?(attrs = []) string =

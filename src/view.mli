@@ -77,7 +77,7 @@ val with_colors' : ?fill_backdrop:bool -> ?fg:Attr.Color.t -> ?bg:Attr.Color.t -
 
     This utilitiy funtion may be useful to you if you are implementing functionality that
     needs to know how "wide" some character looks visually. (e.g. when implementing a
-    "line-wrapping" algoritmn) *)
+    "line-wrapping" algorithm) *)
 val uchar_tty_width : Uchar.t -> int
 
 (** The [Tag] API allows you to associate arbitrary information with a [View.t] and look

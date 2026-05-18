@@ -13,7 +13,7 @@ open! Core
 val set_title : local_ Bonsai.graph -> (string -> unit Effect.t) Bonsai.t
 
 val register
-  :  Term.t
+  :  _ Term.t
   -> (local_ Bonsai.graph -> 'a Bonsai.t)
   -> local_ Bonsai.graph
   -> 'a Bonsai.t

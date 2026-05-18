@@ -19,5 +19,4 @@ val of_deferred_thunk'
   -> 'response t
 
 val set_cursor : local_ Bonsai.graph -> (Cursor.t option -> unit t) Bonsai.t
-val set_mouse_reporting : local_ Bonsai.graph -> (bool -> unit t) Bonsai.t
 val eprint_s : Sexp.t -> unit t

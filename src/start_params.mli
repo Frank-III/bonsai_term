@@ -2,38 +2,30 @@ open! Core
 open Bonsai
 open Async
 
-type 'exit t = private
-  { dispose : bool option
-  ; nosig : bool option
-  ; mouse : bool option
-  ; bpaste : bool option
+type ('result, 'exit, 'incoming, 'runtime_start_params) t = private
+  { runtime_start_params : 'runtime_start_params
   ; optimize : bool
   ; target_frames_per_second : int
-  ; reader : Reader.t option
-  ; writer : Writer.t option
   ; time_source : Time_source.t
-  ; for_mocking : Notty_async.For_mocking.t option
+  ; get_view_and_handler : 'result -> View.With_handler.t
+  ; handle_incoming : 'result -> 'incoming -> unit Effect.t
   ; app :
       exit:('exit -> unit Effect.t)
       -> dimensions:Geom.Dimensions.t Bonsai.t
       -> local_ Bonsai.graph
-      -> view:View.t Bonsai.t * handler:(Event.t -> unit Effect.t) Bonsai.t
+      -> 'result Bonsai.t
   }
 
 val create_exn
-  :  dispose:bool option
-  -> nosig:bool option
-  -> mouse:bool option
-  -> bpaste:bool option
-  -> reader:Reader.t option
-  -> writer:Writer.t option
+  :  runtime_start_params:'runtime_start_params
   -> time_source:Time_source.t option
-  -> for_mocking:Notty_async.For_mocking.t option
   -> optimize:bool option
   -> target_frames_per_second:int option
+  -> get_view_and_handler:('result -> View.With_handler.t)
+  -> handle_incoming:('result -> 'incoming -> unit Effect.t)
   -> app:
        (exit:('exit -> unit Effect.t)
         -> dimensions:Geom.Dimensions.t Bonsai.t
         -> local_ Bonsai.graph
-        -> view:View.t Bonsai.t * handler:(Event.t -> unit Effect.t) Bonsai.t)
-  -> 'exit t
+        -> 'result Bonsai.t)
+  -> ('result, 'exit, 'incoming, 'runtime_start_params) t

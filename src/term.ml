@@ -1,78 +1,71 @@
 open! Core
 open Async
 
-type t =
-  { term : Notty_async.Term.t
-  ; bvar : (unit, read) Bvar.t
-  ; pending_events : Event.Root_event.t Queue.t
-  ; pipe_is_closed : unit Set_once.t
+module Packed_runtime = struct
+  type t =
+    | T :
+        { module_ : (module Runtime_intf.S with type t = 'a)
+        ; runtime : 'a
+        }
+        -> t
+end
+
+type 'incoming t =
+  { runtime : Packed_runtime.t
+  ; event_queue : 'incoming Event_queue.t
   ; time_source : Async.Time_source.t
   }
 
 let size t =
-  let%tydi { term; _ } = t in
-  Notty_async.Term.size term
+  let%tydi { runtime = T { module_ = (module Runtime); runtime }; _ } = t in
+  Runtime.size runtime
 ;;
 
 let image t image =
-  let%tydi { term; _ } = t in
-  Notty_async.Term.image term image
+  let%tydi { runtime = T { module_ = (module Runtime); runtime }; _ } = t in
+  Runtime.render runtime image
 ;;
 
 let dead t =
-  let%tydi { term; _ } = t in
-  Notty_async.Term.dead term
+  let%tydi { runtime = T { module_ = (module Runtime); runtime }; _ } = t in
+  Runtime.has_been_released runtime
 ;;
 
 let release t =
-  let%tydi { term; _ } = t in
-  let%bind () = Notty_async.Term.restore_title term in
-  Notty_async.Term.release term
+  let%tydi { runtime = T { module_ = (module Runtime); runtime }; _ } = t in
+  Runtime.release runtime
 ;;
 
 let cursor t cursor =
-  let%tydi { term; _ } = t in
-  Notty_async.Term.cursor term cursor
+  let%tydi { runtime = T { module_ = (module Runtime); runtime }; _ } = t in
+  Runtime.set_cursor runtime cursor
 ;;
 
 let set_title t title =
-  let%tydi { term; _ } = t in
-  Notty_async.Term.set_title term title
+  let%tydi { runtime = T { module_ = (module Runtime); runtime }; _ } = t in
+  Runtime.set_title runtime title
 ;;
 
 let set_mouse t enabled =
-  let%tydi { term; _ } = t in
-  Notty_async.Term.set_mouse term enabled
+  let%tydi { runtime = T { module_ = (module Runtime); runtime }; _ } = t in
+  Runtime.set_mouse_enabled runtime enabled
 ;;
 
-let dimensions t =
-  let width, height = size t in
-  { Geom.Dimensions.width; height }
-;;
+let dimensions t = size t
 
-module Queue = struct
-  include Queue
-
-  let dequeue_all_and_clear queue =
-    match Queue.is_empty queue with
-    | true -> []
-    | false ->
-      let list = Queue.to_list queue in
-      Queue.clear queue;
-      list
-  ;;
-end
-
-let rec next_event_or_wait_delay t ~delay : Event.Root_event.t Nonempty_list.t Deferred.t =
-  let%tydi { term = _; bvar; pending_events; pipe_is_closed = _; time_source } = t in
-  match Queue.dequeue_all_and_clear pending_events with
+let rec next_event_or_wait_delay t ~delay
+  : 'incoming Event.Root_event.t Nonempty_list.t Deferred.t
+  =
+  let%tydi { runtime = _; event_queue; time_source } = t in
+  match Event_queue.dequeue_all_and_clear event_queue with
   | hd :: tl ->
     let events = Nonempty_list.create hd tl in
     Deferred.return events
   | [] ->
     (match%bind
        Async.choose
-         [ Async.choice (Bvar.wait bvar) (fun () -> `New_event)
+         [ Async.choice (Event_queue.wait_for_next_event event_queue) (fun () ->
+             `New_event)
          ; Async.choice (Time_source.after time_source delay) (fun () -> `Timer)
          ]
      with
@@ -80,40 +73,24 @@ let rec next_event_or_wait_delay t ~delay : Event.Root_event.t Nonempty_list.t D
      | `Timer -> Deferred.return (Nonempty_list.singleton Event.Root_event.Timer))
 ;;
 
-let create ?dispose ?nosig ?mouse ?bpaste ?reader ?writer ?for_mocking ~time_source () =
-  let%bind term =
-    Notty_async.Term.create ?mouse ?dispose ?nosig ?bpaste ?reader ?writer ?for_mocking ()
-  in
-  let%bind () = Notty_async.Term.save_title term in
-  let pending_events = Queue.create () in
-  let bvar = Bvar.create () in
-  let notty_pipe = Notty_async.Term.events term in
-  let pipe_is_closed = Set_once.create () in
-  let[@inline always] enqueue_event event =
-    Queue.enqueue pending_events event;
-    Bvar.broadcast bvar ()
-  in
-  don't_wait_for
-    (Pipe.iter_without_pushback notty_pipe ~f:(fun event ->
-       (* NOTE: We use [iter_without_pushback] here to immediately enqueue the event so
-          that we do not risk accidentally dropping it. A first implementation of this
-          function made use of [Pipe.read] inside of a call to [Async.choose], but this
-          proved unreliable as if a different branch of the [choose] won, we could "drop"
-          the event we saw.
+let enqueue_event t event = Event_queue.enqueue_event t.event_queue event
 
-          The alternate approach is to instead [Pipe.iter_without_pushback] to add the
-          events to a queue, and then [Bvar.broadcast] to (optionally) notify the "loop"
-          that there is a new event in the queue. *)
-       enqueue_event (Event_conversion.notty_root_event_to_root_event event)));
-  Deferred.upon (Pipe.closed notty_pipe) (fun () -> enqueue_event Stdin_closed);
+let create
+  (type runtime_start_params)
+  start_params
+  (module Runtime : Runtime_intf.S with type Start_params.t = runtime_start_params)
+  ~time_source
+  ()
+  =
+  let event_queue = Event_queue.create () in
+  let%bind runtime = Runtime.create ~event_queue start_params in
   let t =
-    { term; bvar :> (unit, read) Bvar.t; pending_events; pipe_is_closed; time_source }
+    { runtime = T { module_ = (module Runtime); runtime }; event_queue; time_source }
   in
   Deferred.return t
 ;;
 
 let write_string_to_tty t string =
-  let writer = Notty_async.Term.writer t.term in
-  Writer.write writer string;
-  Writer.flushed writer
+  let%tydi { runtime = T { module_ = (module Runtime); runtime }; _ } = t in
+  Runtime.write_to_string_tty runtime string
 ;;

@@ -8,4 +8,4 @@ val notty_root_event_to_root_event
      | `Paste of Notty.Unescape.paste
      | `Resize of int * int
      ]
-  -> Event.Root_event.t
+  -> _ Event.Root_event.t

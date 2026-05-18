@@ -50,6 +50,27 @@ module Event = Event
     effects. *)
 module Effect = Effect
 
+module Mouse_reporting : sig
+  (** Controls how much terminal mouse reporting is enabled. *)
+  type t =
+    | All_mouse_events
+    (** Report ordinary mouse events and hover/motion events with no button pressed. *)
+    | All_mouse_events_except_hover
+    (** Report ordinary mouse events, but do not report hover/motion events with no button
+        pressed. *)
+    | No_mouse_events
+    (** Disable terminal mouse reporting, allowing terminal-native mouse selection. *)
+  [@@deriving sexp_of, equal]
+
+  (** Dynamically control terminal mouse reporting.
+
+      [All_mouse_events] enables ordinary mouse events and hover/motion events with no
+      button pressed. [All_mouse_events_except_hover] enables ordinary mouse events but
+      disables hover events. [No_mouse_events] disables terminal mouse reporting, which is
+      important for allowing terminal-native text selection. *)
+  val set_mouse_reporting : local_ Bonsai.graph -> (t -> unit Effect.t) Bonsai.t
+end
+
 (** [start] is will run your app. The [unit Deferred.t] is determined when the user hits
     [Ctrl-C]. If you would like an exit that is different from [Ctrl+C], please refer to
     [start_with_exit]
@@ -68,7 +89,11 @@ module Effect = Effect
     {e ixon}) on input. Inhibits automatic handling of {e CTRL-\{C,Z,\,S,Q\}}. Defaults to
     [true].
 
-    [~mouse] activates mouse reporting. Defaults to [true].
+    [~mouse] controls terminal mouse reporting. Defaults to
+    [Mouse_reporting.All_mouse_events_except_hover]. Use
+    [Mouse_reporting.All_mouse_events] to also receive hover/motion events, and
+    [Mouse_reporting.No_mouse_events] to disable terminal mouse reporting so
+    terminal-native text selection works normally.
 
     [~bpaste] activates bracketed paste reporting. Defaults to [true].
 
@@ -85,7 +110,7 @@ module Effect = Effect
 val start
   :  ?dispose:bool
   -> ?nosig:bool
-  -> ?mouse:bool
+  -> ?mouse:Mouse_reporting.t
   -> ?bpaste:bool
   -> ?reader:Reader.t
   -> ?writer:Writer.t
@@ -107,7 +132,7 @@ val start
 val start_with_exit
   :  ?dispose:bool
   -> ?nosig:bool
-  -> ?mouse:bool
+  -> ?mouse:Mouse_reporting.t
   -> ?bpaste:bool
   -> ?reader:Reader.t
   -> ?writer:Writer.t
@@ -121,6 +146,32 @@ val start_with_exit
       -> view:View.t Bonsai.t * handler:(Event.t -> unit Effect.t) Bonsai.t)
   -> 'exit Async.Deferred.Or_error.t
 
+(** [start_with_driver] starts a Bonsai_term app in the background and gives you access to
+    a [Driver.t]. This lets you the caller do things like:
+
+    - Inspect the most recently drawn view with [Driver.prev_view].
+    - Inject user-defined ['incoming] events with [Driver.send_incoming_event].
+
+    You can "wait" for the bonsai term app to finish with [Driver.finished]. *)
+val start_with_driver
+  :  ?dispose:bool
+  -> ?nosig:bool
+  -> ?mouse:Mouse_reporting.t
+  -> ?bpaste:bool
+  -> ?reader:Reader.t
+  -> ?writer:Writer.t
+  -> ?time_source:Async.Time_source.t
+  -> ?optimize:bool
+  -> ?target_frames_per_second:int
+  -> ?for_mocking:Notty_async.For_mocking.t
+  -> get_view_and_handler:('result -> View.With_handler.t)
+  -> handle_incoming:('result -> 'incoming -> unit Effect.t)
+  -> (exit:('exit -> unit Effect.t)
+      -> dimensions:Dimensions.t Bonsai.t
+      -> local_ Bonsai.graph
+      -> 'result Bonsai.t)
+  -> ('result, 'exit, 'incoming) Driver.t Async.Deferred.Or_error.t
+
 (** [Position] refers a specific point in the terminal.
 
     top-left terminal corner is [{ row = 0; column = 0}]
@@ -131,7 +182,7 @@ module Position = Position
 module Bonsai = Bonsai
 module Cursor = Cursor
 module Title = Title
-module Mouse_reporting = Mouse_reporting
+module Driver = Driver
 
 (** [stitch] is a tiny utility function that will "tuple up" a view and a handler bonsais
     into a single bonsai node. This is useful if you want to quickly turn some of these
@@ -162,7 +213,7 @@ module Private : sig
     val with_driver
       :  dispose:bool option
       -> nosig:bool option
-      -> mouse:bool option
+      -> mouse:Mouse_reporting.t option
       -> bpaste:bool option
       -> reader:Reader.t option
       -> writer:Writer.t option
@@ -170,12 +221,19 @@ module Private : sig
       -> for_mocking:Notty_async.For_mocking.t option
       -> optimize:bool option
       -> target_frames_per_second:int option
+      -> get_view_and_handler:('result -> View.With_handler.t)
+      -> handle_incoming:('result -> 'incoming -> unit Effect.t)
       -> (exit:('exit -> unit Effect.t)
           -> dimensions:Dimensions.t Bonsai.t
           -> local_ Bonsai.graph
-          -> view:View.t Bonsai.t * handler:(Event.t -> unit Effect.t) Bonsai.t)
-      -> ('exit Driver.t -> 'a Deferred.Or_error.t)
+          -> 'result Bonsai.t)
+      -> (('result, 'exit, 'incoming) Driver.t -> 'a Deferred.Or_error.t)
       -> 'a Deferred.Or_error.t
+
+    val register_mouse_reporting_for_mock_tests
+      :  (Bonsai.graph @ local -> 'a Bonsai.t)
+      -> Bonsai.graph @ local
+      -> 'a Bonsai.t
   end
 end
 
@@ -183,4 +241,5 @@ module Captured_or_ignored = Captured_or_ignored
 
 module Expert : sig
   module Write_to_tty = Write_to_tty
+  module For_other_bonsais = Loop.For_other_bonsais
 end

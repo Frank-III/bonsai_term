@@ -5,12 +5,12 @@ open Bonsai
    inside of each [loop.ml] iteration. *)
 
 module For_dimensions : sig
-  type t
+  type 'incoming t
 
-  val create : term:Term.t -> t
-  val update : t -> unit
-  val set : t -> Geom.Dimensions.t -> unit
-  val value : t -> Geom.Dimensions.t Bonsai.t
+  val create : term:'incoming Term.t -> 'incoming t
+  val update : _ t -> unit
+  val set : _ t -> Geom.Dimensions.t -> unit
+  val value : _ t -> Geom.Dimensions.t Bonsai.t
 end
 
 module For_clock : sig

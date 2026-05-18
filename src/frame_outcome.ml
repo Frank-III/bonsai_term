@@ -2,6 +2,6 @@ open! Core
 
 type 'exit t =
   | Exit of 'exit
-  | Stdin_closed
+  | Incoming_events_pipe_closed
   | Continue
 [@@deriving sexp_of]

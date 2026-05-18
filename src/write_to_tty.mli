@@ -12,7 +12,7 @@ open! Core
 val write_string_to_tty : local_ Bonsai.graph -> (string -> unit Effect.t) Bonsai.t
 
 val register
-  :  Term.t
+  :  _ Term.t
   -> (local_ Bonsai.graph -> 'a Bonsai.t)
   -> local_ Bonsai.graph
   -> 'a Bonsai.t

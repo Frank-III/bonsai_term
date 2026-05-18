@@ -19,7 +19,6 @@ let () =
 ;;
 
 let set_cursor = Cursor.set_cursor_position
-let set_mouse_reporting = Mouse_reporting.set_mouse_reporting
 let show_cursor = Show_cursor
 let hide_cursor = Hide_cursor
 let eprint_s sexp = of_sync_fun Core.eprint_s sexp

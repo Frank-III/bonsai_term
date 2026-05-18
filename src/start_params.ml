@@ -2,35 +2,27 @@ open! Core
 open Bonsai
 open Async
 
-type 'exit t =
-  { dispose : bool option
-  ; nosig : bool option
-  ; mouse : bool option
-  ; bpaste : bool option
+type ('result, 'exit, 'incoming, 'runtime_start_params) t =
+  { runtime_start_params : 'runtime_start_params
   ; optimize : bool
   ; target_frames_per_second : int
-  ; reader : Reader.t option
-  ; writer : Writer.t option
   ; time_source : Time_source.t
-  ; for_mocking : Notty_async.For_mocking.t option
+  ; get_view_and_handler : 'result -> View.With_handler.t
+  ; handle_incoming : 'result -> 'incoming -> unit Effect.t
   ; app :
       exit:('exit -> unit Effect.t)
       -> dimensions:Geom.Dimensions.t Bonsai.t
       -> local_ Bonsai.graph
-      -> view:View.t Bonsai.t * handler:(Event.t -> unit Effect.t) Bonsai.t
+      -> 'result Bonsai.t
   }
 
 let sanity_check_exn
-  { dispose = _
-  ; nosig = _
-  ; mouse = _
-  ; bpaste = _
-  ; reader = _
-  ; writer = _
+  { runtime_start_params = _
   ; time_source = _
   ; optimize = _
   ; target_frames_per_second
-  ; for_mocking = _
+  ; get_view_and_handler = _
+  ; handle_incoming = _
   ; app = _
   }
   =
@@ -44,32 +36,24 @@ let sanity_check_exn
 ;;
 
 let create_exn
-  ~dispose
-  ~nosig
-  ~mouse
-  ~bpaste
-  ~reader
-  ~writer
+  ~runtime_start_params
   ~time_source
-  ~for_mocking
   ~optimize
   ~target_frames_per_second
+  ~get_view_and_handler
+  ~handle_incoming
   ~app
   =
   let optimize = Option.value ~default:true optimize
   and target_frames_per_second = Option.value ~default:60 target_frames_per_second
   and time_source = Option.value_or_thunk ~default:Time_source.wall_clock time_source in
   let out =
-    { dispose
-    ; nosig
-    ; mouse
-    ; bpaste
-    ; reader
-    ; writer
+    { runtime_start_params
     ; time_source
-    ; for_mocking
     ; optimize
     ; target_frames_per_second
+    ; get_view_and_handler
+    ; handle_incoming
     ; app
     }
   in

@@ -5,7 +5,7 @@ module Modifier : sig
     | Meta
     | Ctrl
     | Shift
-  [@@deriving sexp_of]
+  [@@deriving sexp_of, enumerate, equal]
 end
 
 module Key : sig
@@ -23,7 +23,7 @@ module Key : sig
     | Function of int
     | Uchar of Uchar.t
     | ASCII of char
-  [@@deriving sexp_of]
+  [@@deriving equal, sexp_of]
 end
 
 type mouse_kind =
@@ -32,8 +32,9 @@ type mouse_kind =
   | Right
   | Scroll of [ `Up | `Down ]
   | Drag
+  | Hover
   | Release
-[@@deriving sexp_of]
+[@@deriving sexp_of, enumerate]
 
 type t =
   | Key_press of
@@ -49,10 +50,11 @@ type t =
 [@@deriving sexp_of]
 
 module Root_event : sig
-  type nonrec t =
+  type nonrec 'incoming t =
     | Event of t
+    | Incoming_event of 'incoming
     | Resize of Geom.Dimensions.t
-    | Stdin_closed
+    | Incoming_events_pipe_closed
     | Timer
   [@@deriving sexp_of]
 end

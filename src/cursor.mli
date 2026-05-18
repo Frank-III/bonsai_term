@@ -1,7 +1,7 @@
 open! Core
 
 module Kind : sig
-  type t =
+  type t = Types.Cursor.Kind.t =
     | Default
     | Bar
     | Bar_blinking
@@ -12,7 +12,7 @@ module Kind : sig
   [@@deriving sexp_of, equal]
 end
 
-type t =
+type t = Types.Cursor.t =
   { position : Geom.Position.t
   ; kind : Kind.t
   }
@@ -21,7 +21,7 @@ type t =
 val set_cursor_position : local_ Bonsai.graph -> (t option -> unit Ui_effect.t) Bonsai.t
 
 val register
-  :  Term.t
+  :  _ Term.t
   -> (local_ Bonsai.graph -> 'a Bonsai.t)
   -> local_ Bonsai.graph
   -> 'a Bonsai.t

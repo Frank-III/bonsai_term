@@ -6,12 +6,19 @@ val empty : t
 val many : t list -> t
 
 module Color : sig
-  type t [@@deriving equal]
+  type t [@@deriving equal, sexp_of]
 
   (** NOTE: The below colors are "ANSI" "true" 24-bit colors.
 
       https://en.wikipedia.org/wiki/ANSI_escape_code#Colors *)
   val rgb : r:int -> g:int -> b:int -> t
+
+  (** [xterm_256 index] is the xterm 256-color palette entry with index [0..255]. This
+      uses the terminal's palette (i.e. [38;5;<index>] / [48;5;<index>] escape sequences),
+      matching palette-based UIs like jane_curses.
+
+      @raise Invalid_argument if [index] is outside [0..255]. *)
+  val xterm_256 : int -> t
 
   module Expert : sig
     (* NOTE: These colors are the "user-default" colors and using these can result in

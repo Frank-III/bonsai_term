@@ -8,12 +8,12 @@ open! Core
     [continue] which is either processing the next pending event or waiting for the next
     event).
 
-    [Stdin_closed] is received when the input stdin that is used for interactivity is
-    closed. This effectively kills interactivity of the app. In this case, we will return
-    an error, but [bonsai_term] internals still need to do some cleanup so we edit it
-    here. *)
+    [Incoming_events_pipe_closed] is received when the input stdin that is used for
+    interactivity is closed. This effectively kills interactivity of the app. In this
+    case, we will return an error, but [bonsai_term] internals still need to do some
+    cleanup so we edit it here. *)
 type 'exit t =
   | Exit of 'exit
-  | Stdin_closed
+  | Incoming_events_pipe_closed
   | Continue
 [@@deriving sexp_of]
