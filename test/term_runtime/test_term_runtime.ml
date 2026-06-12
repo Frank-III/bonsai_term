@@ -30,6 +30,54 @@ let%expect_test "standalone escape does not wait for another byte" =
   return ()
 ;;
 
+let%expect_test "standalone escape timeout leaves reader usable" =
+  let input_reader, input_writer = Pipe.create () in
+  let%bind reader = Reader.of_pipe (Info.of_string "escape-input") input_reader in
+  let output_path = Filename_unix.temp_file "bonsai-term-escape" ".out" in
+  let%bind writer = Writer.open_file output_path in
+  let event_queue = Event_queue.create () in
+  let for_mocking =
+    For_mocking.create
+      ~dimensions:(fun _ -> Some (10, 4))
+      ~wait_for_next_window_change:(fun () -> Deferred.never ())
+      ~is_a_tty:(fun _ -> return false)
+  in
+  let%bind runtime =
+    Term_runtime.create
+      ~event_queue
+      { dispose = None
+      ; nosig = None
+      ; mouse = None
+      ; bpaste = None
+      ; reader = Some reader
+      ; writer = Some writer
+      ; for_mocking = Some for_mocking
+      }
+  in
+  Pipe.write_without_pushback input_writer "\027";
+  let%bind () = Clock.after (Time_float.Span.of_ms 50.) in
+  print_s
+    [%sexp
+      (Event_queue.dequeue_all_and_clear event_queue
+       : Nothing.t Bonsai_term.Event.Root_event.t list)];
+  Pipe.write_without_pushback input_writer "a";
+  let%bind () = Clock.after (Time_float.Span.of_ms 10.) in
+  print_s
+    [%sexp
+      (Event_queue.dequeue_all_and_clear event_queue
+       : Nothing.t Bonsai_term.Event.Root_event.t list)];
+  Pipe.close input_writer;
+  let%bind () = Term_runtime.release runtime in
+  let%bind () = Writer.close writer in
+  Core_unix.unlink output_path;
+  [%expect
+    {|
+    ((Event (Key_press (key Escape))))
+    ((Event (Key_press (key (ASCII a)))))
+    |}];
+  return ()
+;;
+
 let%expect_test "csi arrows and navigation" =
   let%bind () = print_decoded "\027[A\027[1;5B\027[3~\027[5~\027[6~\027OP" in
   [%expect

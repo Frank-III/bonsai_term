@@ -181,10 +181,11 @@ let read_char_option ?timeout reader =
   match timeout with
   | None -> Reader.read_char reader >>| normalize
   | Some timeout ->
-    choose
-      [ choice (Reader.read_char reader) normalize
-      ; choice (Clock.after timeout) (fun () -> None)
-      ]
+    let%map () = Clock.after timeout in
+    let bytes = Bytes.create 1 in
+    (match Reader.read_available reader bytes with
+     | 1 -> Some (Bytes.get bytes 0)
+     | _ -> None)
 ;;
 
 let utf8_expected_length first =
