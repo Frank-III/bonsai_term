@@ -18,6 +18,7 @@ include module type of Geom
 
 module View = View
 module Attr = Attr
+module For_mocking = For_mocking
 
 (** When your users type a key, click, scroll, ... [bonsai_term] will give you an
     [Event.t].
@@ -105,8 +106,7 @@ end
     output events to [writer]. Use this if you would like to "redirect" the input/output
     that bonsai term uses.
 
-    [for_mocking] allows you to "mock" the terminal environment of [bonsai_term]. Please
-    refer to [Notty_async.For_mocking.t] for the specifics of what can be mocked. *)
+    [for_mocking] allows you to mock the terminal environment of [bonsai_term]. *)
 val start
   :  ?dispose:bool
   -> ?nosig:bool
@@ -117,7 +117,7 @@ val start
   -> ?time_source:Async.Time_source.t
   -> ?optimize:bool
   -> ?target_frames_per_second:int
-  -> ?for_mocking:Notty_async.For_mocking.t
+  -> ?for_mocking:For_mocking.t
   -> (dimensions:Dimensions.t Bonsai.t
       -> local_ Bonsai.graph
       -> view:View.t Bonsai.t * handler:(Event.t -> unit Effect.t) Bonsai.t)
@@ -139,7 +139,7 @@ val start_with_exit
   -> ?time_source:Async.Time_source.t
   -> ?optimize:bool
   -> ?target_frames_per_second:int
-  -> ?for_mocking:Notty_async.For_mocking.t
+  -> ?for_mocking:For_mocking.t
   -> (exit:('exit -> unit Effect.t)
       -> dimensions:Dimensions.t Bonsai.t
       -> local_ Bonsai.graph
@@ -163,7 +163,7 @@ val start_with_driver
   -> ?time_source:Async.Time_source.t
   -> ?optimize:bool
   -> ?target_frames_per_second:int
-  -> ?for_mocking:Notty_async.For_mocking.t
+  -> ?for_mocking:For_mocking.t
   -> get_view_and_handler:('result -> View.With_handler.t)
   -> handle_incoming:('result -> 'incoming -> unit Effect.t)
   -> (exit:('exit -> unit Effect.t)
@@ -198,7 +198,11 @@ val unstitch
 
 module Private : sig
   module Driver = Driver
+  module Event_queue = Event_queue
+  module Event_conversion = Event_conversion
   module Frame_outcome = Frame_outcome
+  module Mouse_reporting_config = Mouse_reporting_config
+  module Term_runtime = Term_runtime
 
   module For_testing : sig
     type common_app_fn :=
@@ -218,7 +222,7 @@ module Private : sig
       -> reader:Reader.t option
       -> writer:Writer.t option
       -> time_source:Time_source.t option
-      -> for_mocking:Notty_async.For_mocking.t option
+      -> for_mocking:For_mocking.t option
       -> optimize:bool option
       -> target_frames_per_second:int option
       -> get_view_and_handler:('result -> View.With_handler.t)
@@ -240,6 +244,7 @@ end
 module Captured_or_ignored = Captured_or_ignored
 
 module Expert : sig
+  module Rendered_view = Rendered_view
   module Write_to_tty = Write_to_tty
   module For_other_bonsais = Loop.For_other_bonsais
 end

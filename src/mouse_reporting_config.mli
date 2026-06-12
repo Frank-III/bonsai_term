@@ -10,5 +10,3 @@ type t =
   | No_mouse_events
   (** Disable terminal mouse reporting, allowing terminal-native mouse selection. *)
 [@@deriving sexp, compare, equal]
-
-val to_notty_flags : t -> mouse:bool * hover:bool

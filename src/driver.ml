@@ -152,7 +152,7 @@ let compute_frame
       if Term.dead term
       then Deferred.return ()
       else (
-        let%map () = Term.image term (View.Private.notty_image view) in
+        let%map () = Term.image term (View.Private.rendered_view view) in
         t.prev_view <- Some view)
     else Deferred.return ()
   in

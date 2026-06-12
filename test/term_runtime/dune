@@ -1,0 +1,6 @@
+(library
+ (name test_term_runtime)
+ (libraries async core core_unix bonsai_term)
+ (inline_tests)
+ (preprocess
+  (pps ppx_jane ppx_expect)))

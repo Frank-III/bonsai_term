@@ -17,7 +17,7 @@ val next_event_or_wait_delay
   -> delay:Time_ns.Span.t
   -> 'incoming Event.Root_event.t Nonempty_list.t Deferred.t
 
-val image : _ t -> Notty.I.t -> unit Deferred.t
+val image : _ t -> Rendered_view.t -> unit Deferred.t
 val dead : _ t -> bool
 val release : _ t -> unit Deferred.t
 val cursor : _ t -> Types.Cursor.t option -> unit Deferred.t

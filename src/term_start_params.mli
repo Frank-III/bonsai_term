@@ -8,5 +8,5 @@ type t =
   ; bpaste : bool option
   ; reader : Reader.t option
   ; writer : Writer.t option
-  ; for_mocking : Notty_async.For_mocking.t option
+  ; for_mocking : For_mocking.t option
   }

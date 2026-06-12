@@ -61,5 +61,22 @@ val invert : t
 val href : string -> t
 
 module Private : sig
-  val type_equal : (t, Notty.A.t) Type_equal.t
+  type color_repr =
+    | Default
+    | Palette_index of int
+    | Rgb of
+        { r : int
+        ; g : int
+        ; b : int
+        }
+
+  val color_to_repr : Color.t -> color_repr
+  val fg : t -> Color.t option
+  val bg : t -> Color.t option
+  val bold : t -> bool
+  val italic : t -> bool
+  val underline : t -> bool
+  val blink : t -> bool
+  val invert : t -> bool
+  val color : Color.t -> Color.t
 end

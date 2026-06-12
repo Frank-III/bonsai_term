@@ -6,6 +6,7 @@ module Effect = Effect
 module Cursor = Cursor
 module Title = Title
 module Captured_or_ignored = Captured_or_ignored
+module For_mocking = For_mocking
 
 module Mouse_reporting = struct
   include Mouse_reporting_config
@@ -33,7 +34,11 @@ let unstitch t =
 
 module Private = struct
   module Driver = Driver
+  module Event_queue = Event_queue
+  module Event_conversion = Event_conversion
   module Frame_outcome = Frame_outcome
+  module Mouse_reporting_config = Mouse_reporting_config
+  module Term_runtime = Term_runtime
 
   module For_testing = struct
     let make_app_exit_on_ctrlc = Loop.For_testing.make_app_exit_on_ctrlc
@@ -43,6 +48,7 @@ module Private = struct
 end
 
 module Expert = struct
+  module Rendered_view = Rendered_view
   module Write_to_tty = Write_to_tty
   module For_other_bonsais = Loop.For_other_bonsais
 end

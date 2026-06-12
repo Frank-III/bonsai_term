@@ -1,100 +1,121 @@
 open! Core
 
-type t = Notty.A.t [@@deriving equal]
-
-let many attrs = List.fold attrs ~init:Notty.A.empty ~f:Notty.A.( ++ )
-let bold = Notty.A.st Notty.A.bold
-let italic = Notty.A.st Notty.A.italic
-let underline = Notty.A.st Notty.A.underline
-let blink = Notty.A.st Notty.A.blink
-let invert = Notty.A.st Notty.A.reverse
-let empty = many []
-
 module Color = struct
-  type t = Notty.A.color
-
-  let sexp_of_t t =
-    Notty.A.Private.color_to_repr t
-    |> [%sexp_of: [ `Default | `Palette_index of int | `Rgb_888 of int * int * int ]]
-  ;;
-
-  let equal =
-    (* Notty.A.color is an int under the hood, so phys_equal is fast and correct *)
-    phys_equal
-  ;;
+  type t =
+    | Default
+    | Palette_index of int
+    | Rgb of
+        { r : int
+        ; g : int
+        ; b : int
+        }
+  [@@deriving equal, sexp_of]
 
   let rgb ~r ~g ~b =
-    let r = Int.clamp_exn r ~min:0 ~max:255 in
-    let g = Int.clamp_exn g ~min:0 ~max:255 in
-    let b = Int.clamp_exn b ~min:0 ~max:255 in
-    Notty.A.rgb_888 ~r ~g ~b
+    Rgb
+      { r = Int.clamp_exn r ~min:0 ~max:255
+      ; g = Int.clamp_exn g ~min:0 ~max:255
+      ; b = Int.clamp_exn b ~min:0 ~max:255
+      }
   ;;
 
   let xterm_256 index =
     if index < 0 || index > 255
     then invalid_arg [%string "Attr.Color.xterm_256: index out of range: %{index#Int}"];
-    if index < 8
-    then (
-      match index with
-      | 0 -> Notty.A.black
-      | 1 -> Notty.A.red
-      | 2 -> Notty.A.green
-      | 3 -> Notty.A.yellow
-      | 4 -> Notty.A.blue
-      | 5 -> Notty.A.magenta
-      | 6 -> Notty.A.cyan
-      | 7 -> Notty.A.white
-      | _ -> assert false)
-    else if index < 16
-    then (
-      match index with
-      | 8 -> Notty.A.lightblack
-      | 9 -> Notty.A.lightred
-      | 10 -> Notty.A.lightgreen
-      | 11 -> Notty.A.lightyellow
-      | 12 -> Notty.A.lightblue
-      | 13 -> Notty.A.lightmagenta
-      | 14 -> Notty.A.lightcyan
-      | 15 -> Notty.A.lightwhite
-      | _ -> assert false)
-    else if index >= 232
-    then (
-      let level = index - 232 in
-      Notty.A.gray level)
-    else (
-      let cube_range = index - 16 in
-      let r = cube_range / 36 in
-      let gb_range = cube_range - (r * 36) in
-      let g = gb_range / 6 in
-      let b = gb_range - (g * 6) in
-      Notty.A.rgb ~r ~g ~b)
+    Palette_index index
   ;;
 
   module Expert = struct
-    let black = Notty.A.black
-    let red = Notty.A.red
-    let green = Notty.A.green
-    let yellow = Notty.A.yellow
-    let blue = Notty.A.blue
-    let magenta = Notty.A.magenta
-    let cyan = Notty.A.cyan
-    let white = Notty.A.white
-    let lightblack = Notty.A.lightblack
-    let lightred = Notty.A.lightred
-    let lightgreen = Notty.A.lightgreen
-    let lightyellow = Notty.A.lightyellow
-    let lightblue = Notty.A.lightblue
-    let lightmagenta = Notty.A.lightmagenta
-    let lightcyan = Notty.A.lightcyan
-    let lightwhite = Notty.A.lightwhite
-    let default = Notty.A.default
+    let black = Palette_index 0
+    let red = Palette_index 1
+    let green = Palette_index 2
+    let yellow = Palette_index 3
+    let blue = Palette_index 4
+    let magenta = Palette_index 5
+    let cyan = Palette_index 6
+    let white = Palette_index 7
+    let lightblack = Palette_index 8
+    let lightred = Palette_index 9
+    let lightgreen = Palette_index 10
+    let lightyellow = Palette_index 11
+    let lightblue = Palette_index 12
+    let lightmagenta = Palette_index 13
+    let lightcyan = Palette_index 14
+    let lightwhite = Palette_index 15
+    let default = Default
   end
 end
 
-let fg = Notty.A.fg
-let bg = Notty.A.bg
-let href url = Notty.A.href ~url
+type t =
+  { fg : Color.t option
+  ; bg : Color.t option
+  ; bold : bool
+  ; italic : bool
+  ; underline : bool
+  ; blink : bool
+  ; invert : bool
+  ; href : string option
+  }
+[@@deriving equal]
+
+let empty =
+  { fg = None
+  ; bg = None
+  ; bold = false
+  ; italic = false
+  ; underline = false
+  ; blink = false
+  ; invert = false
+  ; href = None
+  }
+;;
+
+let merge a b =
+  { fg = Option.first_some b.fg a.fg
+  ; bg = Option.first_some b.bg a.bg
+  ; bold = a.bold || b.bold
+  ; italic = a.italic || b.italic
+  ; underline = a.underline || b.underline
+  ; blink = a.blink || b.blink
+  ; invert = a.invert || b.invert
+  ; href = Option.first_some b.href a.href
+  }
+;;
+
+let many attrs = List.fold attrs ~init:empty ~f:merge
+
+let fg color = { empty with fg = Some color }
+let bg color = { empty with bg = Some color }
+let bold = { empty with bold = true }
+let italic = { empty with italic = true }
+let underline = { empty with underline = true }
+let blink = { empty with blink = true }
+let invert = { empty with invert = true }
+let href url = { empty with href = Some url }
 
 module Private = struct
-  let type_equal : (t, Notty.A.t) Type_equal.t = T
+  type color_repr =
+    | Default
+    | Palette_index of int
+    | Rgb of
+        { r : int
+        ; g : int
+        ; b : int
+        }
+
+  let color_to_repr = function
+    | Color.Default -> Default
+    | Palette_index index -> Palette_index index
+    | Rgb { r; g; b } -> Rgb { r; g; b }
+  ;;
+
+  let fg t = t.fg
+  let bg t = t.bg
+  let bold t = t.bold
+  let italic t = t.italic
+  let underline t = t.underline
+  let blink t = t.blink
+  let invert t = t.invert
+
+  let color t = t
 end

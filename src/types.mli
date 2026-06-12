@@ -19,17 +19,4 @@ module Cursor : sig
     { position : Geom.Position.t
     ; kind : Kind.t
     }
-
-  val to_notty
-    :  t
-    -> int
-       * int
-       * [ `Default
-         | `Bar
-         | `Bar_blinking
-         | `Block
-         | `Block_blinking
-         | `Underline
-         | `Underline_blinking
-         ]
 end

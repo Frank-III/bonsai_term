@@ -23,7 +23,7 @@ type 'ret common_start_args :=
   -> ?time_source:Time_source.t
   -> ?optimize:bool
   -> ?target_frames_per_second:int
-  -> ?for_mocking:Notty_async.For_mocking.t
+  -> ?for_mocking:For_mocking.t
   -> 'ret
 
 val start : (common_app_fn -> unit Deferred.Or_error.t) common_start_args
@@ -52,7 +52,7 @@ module For_testing : sig
     -> reader:Reader.t option
     -> writer:Writer.t option
     -> time_source:Time_source.t option
-    -> for_mocking:Notty_async.For_mocking.t option
+    -> for_mocking:For_mocking.t option
     -> optimize:bool option
     -> target_frames_per_second:int option
     -> get_view_and_handler:('result -> View.With_handler.t)
@@ -69,8 +69,8 @@ module For_other_bonsais : sig
     module type S = Runtime_intf.S
   end
 
-  (** [start_with_custom_runtime] lets you run a bonsai term app with a "different"
-      runtime backend. The "default" bonsai term backed is notty.
+  (** [start_with_custom_runtime] lets you run a bonsai term app with a different runtime
+      backend. The default bonsai_term runtime is terminal-backed.
 
       This function is agnostic to the way that rendering is performed so you could render
       into things like an editor buffer or other rendering mechanisms. *)

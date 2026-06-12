@@ -1,0 +1,6 @@
+(library
+ (name test_rendered_view)
+ (libraries core bonsai_term bonsai_pi_ghostty_vt)
+ (inline_tests)
+ (preprocess
+  (pps ppx_jane ppx_expect)))

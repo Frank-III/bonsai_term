@@ -9,8 +9,8 @@ val none : t
     attributes for things like text/background color. *)
 val text : ?attrs:Attr.t list -> string -> t
 
-(** Checks to see if a string is accepted by Notty as UTF-8 text (i.e. it is valid UTF-8
-    and contains no Unicode control characters).
+(** Checks to see if a string can be used as terminal text without sanitizing (i.e. it is
+    valid UTF-8 and contains no Unicode control characters).
 
     Note: [View.text] will sanitize/escape problematic input, so a [false] result here is
     mainly useful for diagnostics. *)
@@ -89,5 +89,5 @@ module With_handler : sig
 end
 
 module Private : sig
-  val notty_image : t -> Notty.I.t
+  val rendered_view : t -> Rendered_view.t
 end
