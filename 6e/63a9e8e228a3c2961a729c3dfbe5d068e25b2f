@@ -1,0 +1,147 @@
+src/rendered_view.ml
+  s_f80c97b60e6ac8::t_b14adaf673a129 266
+  s_f80c97b60e6ac8::t_633fec129c4b6c 84-106,108-120,127
+  s_f80c97b60e6ac8::t_07716ebc3414d6 64-65,72-83,124-125,129-130,132-134,136-138,140,142-146,148-161,163-176,178-190,192-202,204-214,216
+  s_f80c97b60e6ac8::t_65944030c91eef 217,249,263
+  s_f80c97b60e6ac8::t_4a6c357d2015ca 251
+  s_f80c97b60e6ac8::t_c973c48890619e 3-11,13-38,40,59-63,66-71,107,121-123,218-248,250,252-262,264-265
+  s_f80c97b60e6ac8::t_56daeb06042758 1-2,12
+  s_f80c97b60e6ac8::t_fe19914f9ab628 39,131,135,147,162,177,191,203,215
+  s_f80c97b60e6ac8::t_984fff6f26c327 41-58,126,128,139,141
+src/term_runtime.mli
+  s_f80c97b60e6ac8::t_0a7dfb9cf9e81b 5
+  s_f80c97b60e6ac8::t_7564b2e392a3ca 3-4,13-14
+  s_f80c97b60e6ac8::t_671569224325c9 6-12
+src/for_mocking.mli
+  s_f80c97b60e6ac8::t_eec6880f79491b 1-16
+src/rendered_view.mli
+  s_f80c97b60e6ac8::t_57a7e171c7689e 42-43,45,47-51
+  s_f80c97b60e6ac8::t_ed1a9d3b61d3e4 5-41
+  s_f80c97b60e6ac8::t_ab514fd8de0a86 1-4
+  s_f80c97b60e6ac8::t_eafc92da0cc8c5 44,46
+  s_f80c97b60e6ac8::t_7db24769c3fa2c 52
+src/attr.mli
+  s_f80c97b60e6ac8::t_6bfb9af7aa9f98 81
+  s_f80c97b60e6ac8::t_0c579bf8fb3e70 64-80
+src/runtime_intf.ml
+  s_f80c97b60e6ac8::t_2b5c3c858bc092 7-8
+  s_f80c97b60e6ac8::t_66ea1747279873 17
+src/term_runtime.ml
+  s_f80c97b60e6ac8::t_05d19e423b22c9 309-310,337-338
+  s_f80c97b60e6ac8::t_44d1931b58b837 3,7-9,13,15,17,19-25,27-29,46-54,64-70,102-106,108-111,113-126,129-133,137-147,149-165,178-214,216-224,227-256,259-301,303-308,311-314,316-321,323-336,339-357,359-361,363-368,370-374,383-385,387-397,416-419,422-424,430,433,436-439,442-453,456-463,466-468,470-472,475-478,480-481
+  s_f80c97b60e6ac8::t_0a7dfb9cf9e81b 5
+  s_f80c97b60e6ac8::t_74f2c429f4d36a 26,30-31,33-45
+  s_f80c97b60e6ac8::t_2d73362cf39430 225-226,257-258
+  s_f80c97b60e6ac8::t_8ded575e89d213 10-12,358,362,398-410,412-415
+  s_f80c97b60e6ac8::t_fcffd9e1426f4e 16,107,112,127-128,134-136
+  s_f80c97b60e6ac8::t_195994d4a52db7 375-379,381-382
+  s_f80c97b60e6ac8::t_89caa3f70fe09e 490-495
+  s_f80c97b60e6ac8::t_aed70cc9822f42 302,482-483,496-511
+  s_f80c97b60e6ac8::t_f5b83a9fd8fc7b 14,71-101,380,411,425-429,440-441,484-489
+  s_f80c97b60e6ac8::t_f2b3a03520daaf 32,55-63
+src/view.ml
+  s_f80c97b60e6ac8::t_eaf239080bf804 76-78
+  s_f80c97b60e6ac8::t_bd3334817c5047 218
+  s_f80c97b60e6ac8::t_73fe4828286504 117,219
+  s_f80c97b60e6ac8::t_2f123f3040706b 190-192
+  s_f80c97b60e6ac8::t_e0629cd1a4ce1e 255,259
+  s_f80c97b60e6ac8::t_7dbbc1275c6d9f 288,291
+  s_f80c97b60e6ac8::t_c25e4089d3bc2d 127-128,131-132,141-142,154,161,170,173-175,207,221,245,254,258,262,284,322
+  s_f80c97b60e6ac8::t_43580cc16b395c 35
+  s_f80c97b60e6ac8::t_e29f0bf619559c 39,133,145,147,153,160,171-172,178,180,204-205,211-213,217,235-236,248-252
+  s_f80c97b60e6ac8::t_fc9d866fd33b45 266-269,271-281
+  s_f80c97b60e6ac8::t_464f58d1344233 270,282
+  s_f80c97b60e6ac8::t_3a63cecdc0176c 6-9,12,16-24,28-30
+src/bonsai_term.mli
+  s_f80c97b60e6ac8::t_2309da1c8e991e 247
+  s_f80c97b60e6ac8::t_a7840363f4bbf0 201
+  s_f80c97b60e6ac8::t_a74ae6c2aa56f1 109,120,142,166,225
+  s_f80c97b60e6ac8::t_d0caac1e6b63bb 21
+  s_f80c97b60e6ac8::t_e7145a1cae5b57 202,205
+  s_f80c97b60e6ac8::t_88f51d00bd0bd9 204
+src/attr.ml
+  s_f80c97b60e6ac8::t_9f91edc2d9b9c3 4-12,25,29-45,49-94,120
+  s_f80c97b60e6ac8::t_5951462e24a26f 97-119
+  s_f80c97b60e6ac8::t_0899c2dd5daf2b 15-19
+src/term_start_params.ml
+  s_f80c97b60e6ac8::t_8e8a965dbd4fb9 11
+src/term_start_params.mli
+  s_f80c97b60e6ac8::t_090f1a398b729f 11
+src/effect.ml
+  s_f80c97b60e6ac8::t_3968d6dfae0d08 7-11,16,23
+src/view.mli
+  s_f80c97b60e6ac8::t_93fe64f30843dd 12-13
+  s_f80c97b60e6ac8::t_895b83e4721c35 92
+test/rendered_view/test_rendered_view.ml
+  s_f80c97b60e6ac8::t_38d77b92c8c608 3-6
+  s_f80c97b60e6ac8::t_e4ef021e061eaf 59,68
+  s_f80c97b60e6ac8::t_572bc1c16eb1ec 1-2,7-51,54,56-57
+  s_f80c97b60e6ac8::t_9be8cb1494bce2 60-67,69-74
+  s_f80c97b60e6ac8::t_3b61e33d4147a4 52-53,55
+  s_f80c97b60e6ac8::t_e47a2bd36c5bce 58,75-108
+src/loop.mli
+  s_f80c97b60e6ac8::t_eb8a31ff93372c 26,55
+  s_f80c97b60e6ac8::t_bfd6e624372db0 72-73
+src/for_mocking.ml
+  s_f80c97b60e6ac8::t_4edb641be9563c 1-16
+src/term.mli
+  s_f80c97b60e6ac8::t_f82c51a47e7ed5 20
+src/bonsai_term.ml
+  s_f80c97b60e6ac8::t_a09b8dfd85c28d 37
+  s_f80c97b60e6ac8::t_5340289fe24f06 38,41
+  s_f80c97b60e6ac8::t_fb9228ad9eb0ed 51
+  s_f80c97b60e6ac8::t_88f51d00bd0bd9 40
+  s_f80c97b60e6ac8::t_efb05fa558ee46 9
+test/term_runtime/dune
+  s_f80c97b60e6ac8::t_ffd8e83cef23fb 1-2,4-6
+  s_f80c97b60e6ac8::t_433e79300679f0 3
+src/event_conversion.ml
+  s_f80c97b60e6ac8::t_4615de98f3bd45 3-13,16-18,21,27-28
+  s_f80c97b60e6ac8::t_e2629da48369d5 14,19
+  s_f80c97b60e6ac8::t_48099d731d6758 22-24,29
+test/term_runtime/test_term_runtime.ml
+  s_f80c97b60e6ac8::t_4690788266301f 1-4,8,10-20,24-36,41-64,203-204
+  s_f80c97b60e6ac8::t_72718521a66d5f 21-23,37-40
+  s_f80c97b60e6ac8::t_ea6f8408d5c86e 126-139,141-142,144-146
+  s_f80c97b60e6ac8::t_88f51d00bd0bd9 7,118
+  s_f80c97b60e6ac8::t_f173ad3cade4cd 147-161,164-172
+  s_f80c97b60e6ac8::t_3ee3b68615c0a7 5,9,65-99,106,108-113,115-117,119-121,123-125,173-186,188-193,195-200
+  s_f80c97b60e6ac8::t_195994d4a52db7 100-105,107
+  s_f80c97b60e6ac8::t_e54552da701e1d 6,114,194
+  s_f80c97b60e6ac8::t_cd0a98896e65a4 143
+  s_f80c97b60e6ac8::t_d1c4bc291260df 162-163
+  s_f80c97b60e6ac8::t_0a7dfb9cf9e81b 140
+  s_f80c97b60e6ac8::t_abba82b895b0ce 187
+  s_f80c97b60e6ac8::t_8582fb164e1f39 201-202
+bonsai_term.opam
+  s_f80c97b60e6ac8::t_0a7dfb9cf9e81b 19
+  s_f80c97b60e6ac8::t_c5a26d199d55b5 20-21
+src/driver.ml
+  s_f80c97b60e6ac8::t_e0c05eeb09ad5f 155
+test/rendered_view/dune
+  s_f80c97b60e6ac8::t_bb90fa42376718 3
+  s_f80c97b60e6ac8::t_ba6acbf2e5952f 1,4
+  s_f80c97b60e6ac8::t_572bc1c16eb1ec 2,5-6
+src/event_conversion.mli
+  s_f80c97b60e6ac8::t_90dcc9dbc5b8cc 14,19
+  s_f80c97b60e6ac8::t_c38a35017007b9 3-13,15-18,20-22
+src/dune
+  s_f80c97b60e6ac8::t_0a7dfb9cf9e81b 5
+  s_f80c97b60e6ac8::t_6b90b3641ebf95 4
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "6e63a9e8e228a3c2961a729c3dfbe5d068e25b2f",
+  "prompts": {},
+  "sessions": {
+    "s_f80c97b60e6ac8": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019eb35b-d303-72f3-9cf1-d88e4db42574",
+        "model": "gpt-5.5"
+      },
+      "human_author": "Frank Wang <1454884738@qq.com>"
+    }
+  }
+}
