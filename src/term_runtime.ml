@@ -13,10 +13,12 @@ type t =
   ; mutable dimensions : Geom.Dimensions.t
   ; mutable ghostty : Ghostty.Adapter.t option
   ; mutable released : bool
+  ; signal_stop : unit Ivar.t
   ; original_termios : Core_unix.Terminal_io.t option
   }
 
 let default_dimensions = { Geom.Dimensions.width = 80; height = 24 }
+let sigwinch = Signal_unix.of_system_int 28
 
 let dimensions_from_env () =
   match Sys.getenv "COLUMNS", Sys.getenv "LINES" with
@@ -90,6 +92,14 @@ let resize_ghostty t =
      | Error _ ->
        Ghostty.Adapter.free ghostty;
        t.ghostty <- create_ghostty t.dimensions)
+;;
+
+let apply_dimensions ?(force = false) t dimensions =
+  if force || not ([%equal: Geom.Dimensions.t] t.dimensions dimensions)
+  then (
+    t.dimensions <- dimensions;
+    resize_ghostty t;
+    t.enqueue_resize dimensions)
 ;;
 
 let feed_ghostty_frame t frame =
@@ -376,12 +386,19 @@ let start_mock_resize_loop t for_mocking =
          then Deferred.unit
          else (
            let dimensions = current_dimensions ?for_mocking:(Some for_mocking) t.writer in
-           t.dimensions <- dimensions;
-           resize_ghostty t;
-           t.enqueue_resize dimensions;
+           apply_dimensions ~force:true t dimensions;
            loop ()))
      in
      loop ())
+;;
+
+let start_signal_resize_loop t ~for_mocking =
+  match for_mocking with
+  | Some _ -> ()
+  | None ->
+    Signal.handle [ sigwinch ] ~stop:(Ivar.read t.signal_stop) ~f:(fun _ ->
+      if not t.released
+      then current_dimensions t.writer |> apply_dimensions t)
 ;;
 
 let create ~event_queue (start_params : Start_params.t) =
@@ -410,12 +427,14 @@ let create ~event_queue (start_params : Start_params.t) =
     ; dimensions
     ; ghostty = create_ghostty dimensions
     ; released = false
+    ; signal_stop = Ivar.create ()
     ; original_termios
     }
   in
   let%bind () = write_and_flush writer (setup_sequences ~mouse ~bpaste) in
   start_input_loop t;
   Option.iter for_mocking ~f:(start_mock_resize_loop t);
+  start_signal_resize_loop t ~for_mocking;
   return t
 ;;
 
@@ -437,6 +456,7 @@ let release t =
   then Deferred.unit
   else (
     t.released <- true;
+    Ivar.fill_if_empty t.signal_stop ();
     Option.iter t.ghostty ~f:Ghostty.Adapter.free;
     t.ghostty <- None;
     let%bind () = write_and_flush t.writer release_sequences in
